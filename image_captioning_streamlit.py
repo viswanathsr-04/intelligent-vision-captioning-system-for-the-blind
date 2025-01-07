@@ -57,20 +57,32 @@ def text_to_speech(text, lang='en'):
 # Streamlit Application
 st.title("Enhanced Image Captioning Application")
 
+# Initialize session state variables
+if 'uploaded_image' not in st.session_state:
+    st.session_state['uploaded_image'] = None
+if 'initial_caption' not in st.session_state:
+    st.session_state['initial_caption'] = ""
+if 'refined_caption' not in st.session_state:
+    st.session_state['refined_caption'] = ""
+
+# File uploader
 uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image", width=400)
+    # Store the uploaded image in session state
+    st.session_state['uploaded_image'] = Image.open(uploaded_file)
+    st.image(st.session_state['uploaded_image'], caption="Uploaded Image", width=400)
     st.write("")
+
+    # Generate initial caption
     with st.spinner("Generating caption..."):
-        initial_caption = generate_initial_caption(image)
-        print(initial_caption)
-        refined_caption = refine_caption_with_groq(initial_caption)
-    st.success(f"Refined Caption: {refined_caption}")
+        st.session_state['initial_caption'] = generate_initial_caption(st.session_state['uploaded_image'])
+        st.session_state['refined_caption'] = refine_caption_with_groq(st.session_state['initial_caption'])
+
+    st.success(f"Refined Caption: {st.session_state['refined_caption']}")
 
     # Convert the refined caption to speech
-    audio_data = text_to_speech(refined_caption)
+    audio_data = text_to_speech(st.session_state['refined_caption'])
 
     # Play the audio in Streamlit
     st.audio(audio_data, format="audio/mp3")
