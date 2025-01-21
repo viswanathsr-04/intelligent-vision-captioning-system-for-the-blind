@@ -70,7 +70,7 @@ uploaded_file = st.file_uploader("Upload an Image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     # Store the uploaded image in session state
-    st.session_state['uploaded_image'] = Image.open(uploaded_file)
+    st.session_state['uploaded_image'] = Image.open(uploaded_file).convert("RGB")
     st.image(st.session_state['uploaded_image'], caption="Uploaded Image", width=400)
     st.write("")
 
